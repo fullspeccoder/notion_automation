@@ -1,0 +1,4 @@
+.env
+lighthouse_results.json
+__pycache__
+.venv
