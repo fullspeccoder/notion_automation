@@ -52,7 +52,7 @@ class NotionProperties:
 
         self.properties = props
 
-    def translate_to_json(self):
+    def to_dict(self):
         """
         Converts NotionProperties Object to json format for Notion Client.
 
@@ -61,7 +61,7 @@ class NotionProperties:
         """
         obj = {}
         for prop in self.properties:
-            obj.update(prop.to_json())
+            obj.update(prop.to_dict())
 
         return obj
 
@@ -75,7 +75,7 @@ class NotionProperty:
         self.prop_name = prop_name
         self.content = dict()
 
-    def to_json(self):
+    def to_dict(self):
         '''
         Converts object to json format
 
@@ -336,6 +336,8 @@ class NotionFormulaProperty(NotionProperty):
 
 class NotionLastEditedByProperty(NotionProperty):
     '''
+    !!! DO NOT USE; RESULTS IN ERROR IN PAGE CREATION !!!
+
     Represents a Notion LastEditedBy Property.
 
     This classes provides conversion methods to convert object to json format.
@@ -371,6 +373,8 @@ class NotionLastEditedByProperty(NotionProperty):
 
 class NotionLastEditedTimeProperty(NotionProperty):
     '''
+    !!! DO NOT USE; RESULTS IN ERROR IN PAGE CREATION !!!
+
     Represents a Notion LastEditedTime Property.
 
     This classes provides conversion methods to convert object to json format.
@@ -607,6 +611,7 @@ class NotionRichTextProperty(NotionProperty):
 
 class NotionRollupProperty(NotionProperty):
     '''
+    !!! DO NOT USE TO CREATE PAGES; RESULTS IN ERROR !!!
     Notion Text Property object. Allows for simple text to be uploaded to Notion
     '''
 
