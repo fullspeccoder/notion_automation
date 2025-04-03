@@ -2,6 +2,61 @@ import requests as rq
 from notion_props import *
 
 
+class MealAPI:
+    def __init__(self):
+        self.base_url = "https://www.themealdb.com/api/json/v1/1/"
+
+    def get_random_meal(self):
+        url = f'{self.base_url}random.php'
+
+        res = rq.get(url)
+        json_data = res.json()
+
+        random_meal = json_data['meals'][0]
+
+        return random_meal
+
+    def search_by_name(self, name):
+        url = f'{self.base_url}search.php?s={name}'
+
+        res = rq.get(url)
+        json_data = res.json()
+
+        named_meal = json_data['meals'][0]
+
+        return named_meal
+
+    def search_by_letter(self, letter):
+        url = f'{self.base_url}search.php?f={letter}'
+
+        res = rq.get(url)
+        json_data = res.json()
+
+        lettered_meal = json_data['meals'][0]
+
+        return lettered_meal
+
+    def search_by_id(self, id):
+        url = f'{self.base_url}lookup.php?i={id}'
+
+        res = rq.get(url)
+        json_data = res.json()
+
+        id_meal = json_data['meals'][0]
+
+        return id_meal
+
+    def list_categories(self):
+        url = f'{self.base_url}categories.php'
+
+        res = rq.get(url)
+        json_data = res.json()
+
+        categorical_meal = json_data['meals'][0]
+
+        return categorical_meal
+
+
 class MealParser:
     def parse_meal(self, meal: dict) -> dict:
         filtered_true_values = [{key: value} for key,
@@ -16,38 +71,10 @@ class MealParser:
             ingredients_w_measurements.update(
                 {obj[f'strIngredient{ind + 1}']: filtered_measurements[ind][f'strMeasure{ind + 1}']})
 
-        parsed_meal = NotionMeal(meal['strMeal'], meal['strCategory'], meal['strInstructions'],
-                                 meal['strMealThumb'], meal['strTags'].split(','), meal['strYoutube'], ingredients_w_measurements, meal['strSource'])
-        return parsed_meal.to_json()
+        meal = {"name": meal['strMeal'], "category": meal['strCategory'], "instructions": meal['strInstructions'], "thumbnail_url": meal['strMealThumb'],
+                "tags": meal['strTags'].split(','), "youtube_url": meal['strYoutube'], 'ingredients': ingredients_w_measurements, 'source_url': meal["strSource"]}
 
-
-class NotionMeal:
-    def __init__(self, name: str = None, category: str = None, instructions: str = None, thumbnail_url: str = None, tags: list = None, youtube_url: str = None, ingredients: dict = None, source_url: str = None) -> None:
-        # Title Property
-        self.meal_name = name
-        NotionTitleProperty("Title", name)
-        # Text Property
-        self.category = category
-        NotionRichTextProperty("Category", category)
-        # Child Block
-        self.instructions = instructions
-
-        # Cover Image
-        self.thumbnail_url = thumbnail_url
-        # Multi Select
-        self.tags = tags
-        NotionMultiSelectProperty("Tags", tags)
-        # Url Property
-        self.youtube_url = youtube_url
-        NotionUrlProperty("Youtube Url", youtube_url)
-        # Child Block
-        self.ingredients = ingredients
-        # Url Property
-        self.source_url = source_url
-        NotionUrlProperty("Source Url", source_url)
-
-    def to_json(self):
-        return {'meal_name': self.meal_name, "category": self.category, "instructions": self.instructions, "thumbnail_url": self.thumbnail_url, "tags": self.tags, "youtube_url": self.youtube_url, "ingredients": self.ingredients, "source_url": self.source_url}
+        return meal
 
 
 meal_object = {
@@ -110,12 +137,8 @@ meal_object = {
     ]
 }
 
-url = 'https://www.themealdb.com/api/json/v1/1/random.php'
-
-res = rq.get(url)
-json_data = res.json()
-
-random_meal = json_data['meals'][0]
+api = MealAPI()
+random_meal = api.get_random_meal()
 
 meal_parser = MealParser()
 
