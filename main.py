@@ -24,15 +24,12 @@ props = NO.NotionProperties()
 
 props.add_properties(properties)
 
-new_page = NP.NotionPage(page_id=os.getenv("NOTION_PAGE_ID"), db_id=os.getenv(
-    "NOTION_DATABASE_ID"), cover_url="https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", emoji="😀", properties=props)
+
 # new_page.set_parent_page(os.getenv("NOTION_PAGE_ID"))
 # new_page.set_parent_database(os.getenv("NOTION_DATABASE_ID"))
 # new_page.set_cover("https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 # new_page.set_icon("🐱")
 # new_page.set_properties(props)
-
-print(new_page)
 
 # client.pages.create(parent={"type": "database_id", "database_id": os.getenv(
 #     'NOTION_DATABASE_ID')}, properties=props_obj)
