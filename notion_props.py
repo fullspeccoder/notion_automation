@@ -1,38 +1,57 @@
-"""
+'''notion_props.py
+
 This module provides an abstraction for Notion properties, simplifying interactions
 with Notion's API.
 
 By reducing complexity, it enhances code readability, minimizes the effort needed
 to define properties, and accelerates workflow automation.
-"""
+
+Includes:
+    - Notion property creation
+    - Notion Property management
+    - Ease of conversion into Notion api
+
+Example:
+    >>> from notion_props import *
+    >>> title_prop = NotionTitleProperty("Title", "Recipe Name")
+    >>> recipe_props = NotionProperties()
+    >>> recipe_props.add_property(title_prop)
+'''
 
 
 class NotionProperties:
-    '''
-    Represents notion properties for a page.
+    """Represents a collection of Notion property objects for a page.
+
+    This class acts as a container and manager for Notion property components,
+    providing methods to add individual or multiple properties and convert them
+    into a dictionary format suitable for the Notion API.
 
     Attributes:
-        properties (list): The list of properties of a page
+        properties (list): A list of JSON-like property dictionaries.
 
-    Methods:
-        add_property(): Adds a NotionProperty Object to list
-        add_properties(): Adds multiple NotionProperty Objects to list
-        translate_to_json(): Converts object into readable Notion Client data.
-    '''
+    Example:
+        >>> title = NotionTitleProperty("Name", "My Task")
+        >>> date = NotionDateProperty("Due Date", "2025-04-03")
+        >>> props = NotionProperties()
+        >>> props.add_property(title)
+        >>> props.add_property(date)
+        >>> notion_payload = props.to_dict()
+    """
 
     def __init__(self):
-        """
-        Initializes a NotionProperties object.
-        """
+        """Initializes an empty NotionProperties container."""
         self.properties = list()
 
     def add_property(self, prop):
-        """
-        Adds a NotionProperty Object to properties attribute.
+        """Adds a single NotionProperty object to the properties list.
 
-        Params:
-            property (NotionProperty): NotionProperty object or subclasses.
+        Args:
+            prop (NotionProperty): The property object to add.
+
+        Raises:
+            TypeError: If `prop` is not an instance of NotionProperty.
         """
+
         if not isinstance(prop, NotionProperty):
             raise TypeError(
                 f'Expected a NotionProperty Object, got {type(prop).__name__}')
@@ -40,11 +59,13 @@ class NotionProperties:
         self.properties.append(prop.to_json())
 
     def add_properties(self, props):
-        """
-        Adds multiple NotionProperty Objects to properties attribute.
+        """Adds multiple NotionProperty objects to the properties list.
 
-        Params:
-            properties (list[<NotionProperty>]): List of NotionProperty objects or subclasses.
+        Args:
+            props (list): A list of NotionProperty objects.
+
+        Raises:
+            TypeError: If `props` is not a list of NotionProperty objects.
         """
         if not isinstance(props, list):
             raise TypeError(
@@ -53,11 +74,10 @@ class NotionProperties:
         self.properties = props
 
     def to_dict(self):
-        """
-        Converts NotionProperties Object to json format for Notion Client.
+        """Converts the stored properties into a dictionary.
 
         Returns:
-            Returns properties object for Notion Client.
+            dict: A dictionary of Notion properties formatted for the Notion API.
         """
         obj = {}
         for prop in self.properties:
@@ -67,50 +87,75 @@ class NotionProperties:
 
 
 class NotionProperty:
-    '''
-    General Class for Property Creation
-    '''
+    """Base class for all Notion property types.
+
+    This class provides a base structure for other Notion property classes to inherit from.
+    It stores the property name and the data structure (`content`) used to represent the
+    property in Notion's API format.
+
+    Subclasses must define `self.content` in their constructors to be usable.
+
+    Attributes:
+        prop_name (str): The name of the Notion property (used as the key in the final output).
+        content (dict): A dictionary representing the Notion property structure.
+
+    Example:
+        >>> class MyCustomProperty(NotionProperty):
+        ...     def __init__(self, prop_name, value):
+        ...         super().__init__(prop_name)
+        ...         self.content = {"custom_type": value}
+
+        >>> prop = MyCustomProperty("Demo", 123)
+        >>> prop.to_json()
+        {
+            "Demo": {
+                "custom_type": 123
+            }
+        }
+    """
 
     def __init__(self, prop_name):
+        """Initializes a base NotionProperty.
+
+        Args:
+            prop_name (str): The name/key for the Notion property.
+        """
         self.prop_name = prop_name
         self.content = dict()
 
-    def to_dict(self):
-        '''
-        Converts object to json format
+    def to_json(self):
+        """Converts the property into Notion-compatible JSON.
 
         Returns:
-            Returns this instance of object in json format
-        '''
+            dict: A dictionary representing the Notion property in API format.
+        """
         return {self.prop_name: self.content}
 
 
 class NotionCheckboxProperty(NotionProperty):
-    '''
-    Represents a Notion Checkbox Property.
+    """Represents a Notion Checkbox Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of checkbox properties in Notion Pages.
+    Used to create a checkbox property in a Notion page, allowing for boolean
+    values (checked or unchecked) to be stored.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (bool): A boolean value that represents whether the box 
-        is checked or unchecked (True or False).
-    '''
+        prop_name (str): The name of the checkbox property.
+        content (bool): A boolean value indicating whether the checkbox is checked.
+
+    Example:
+        >>> checkbox = NotionCheckboxProperty("Completed", True)
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for Checkbox content. 
+        """Initializes a NotionCheckboxProperty.
 
-        This class instantiates a Notion Checkbox Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the checkbox property.
+            content (bool): A boolean indicating if the checkbox is checked.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionCheckboxProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a boolean.
+        """
         if not isinstance(content, bool):
             raise TypeError(
                 f'Expected a boolean, got {type(content).__name__}')
@@ -122,30 +167,36 @@ class NotionCheckboxProperty(NotionProperty):
 
 
 class NotionCreatedByProperty(NotionProperty):
-    '''
-    !!! DO NOT USE - Notion SETS THIS PROPERTY FOR YOU UPON PAGE CREATION !!!
+    """Represents a Notion 'Created By' property.
 
-    Represents a Notion Created By Property.
+    !!! WARNING: This property is set automatically by Notion and is read-only.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of created by properties in Notion Pages.
+    Allows the user to supply a plain string to represent the person who created the page.
+    Internally converts it into the correct structure for Notion's API.
 
     Attributes:
-        content (str): A string that represents the user that created the page.
-    '''
+        prop_name (str): The property name (always "Created By").
+        content (str): The plain string name of the creator.
+
+    Example:
+        >>> prop = NotionCreatedByProperty("John Smith")
+        >>> prop.to_json()
+        {
+            "Created By": {
+                "created_by": "John Smith"
+            }
+        }
+    """
 
     def __init__(self, content):
-        '''
-        Creates a Notion property for Created By content. 
+        """Initializes the CreatedBy property using a plain name string.
 
-        This class instantiates a Notion Created By Property for a Notion client. 
+        Args:
+            content (str): The name of the person who created the page.
 
-        Parameters:
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionCreatedByProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(
                 f'Expected a string, got {type(content).__name__}')
@@ -157,30 +208,36 @@ class NotionCreatedByProperty(NotionProperty):
 
 
 class NotionCreatedTimeProperty(NotionProperty):
-    '''
+    """Represents a Notion 'Created Time' property.
+
     !!! DO NOT USE - Notion SETS THIS PROPERTY FOR YOU UPON PAGE CREATION !!!
 
-    Represents a Notion Created Time Property.
-
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of created time properties in Notion Pages.
+    Accepts a plain timestamp string from the user and wraps it in the correct
+    Notion format for display or reference.
 
     Attributes:
-        content (str): A string that represents a created time of page.
-    '''
+        prop_name (str): The property name (always "Created At").
+        content (str): A plain timestamp string.
+
+    Example:
+        >>> prop = NotionCreatedTimeProperty("02/03/1996")
+        >>> prop.to_json()
+        {
+            "Created At": {
+                "created_time": "02/03/1996"
+            }
+        }
+    """
 
     def __init__(self, content):
-        '''
-        Creates a Notion property for Created Time content. 
+        """Initializes the CreatedTime property with a raw string timestamp.
 
-        This class instantiates a Notion Created Time Property for a Notion client. 
+        Args:
+            content (str): A readable timestamp string.
 
-        Parameters:
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionCreatedTimeProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(
                 f'Expected a string, got {type(content).__name__}')
@@ -192,30 +249,35 @@ class NotionCreatedTimeProperty(NotionProperty):
 
 
 class NotionDateProperty(NotionProperty):
-    '''
-    Represents a Notion Date Property.
+    """Represents a Notion Date Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of date properties in Notion Pages.
+    Allows users to pass a plain date string (e.g. "02/03/1996") and converts it
+    into the proper Notion format.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (str): A string that represent a date.
-    '''
+        prop_name (str): The name of the property (e.g. "Birthday").
+        content (str): The raw date string provided by the user.
+
+    Example:
+        >>> prop = NotionDateProperty("Birthday", "02/03/1996")
+        >>> prop.to_json()
+        {
+            "Birthday": {
+                "date": "02/03/1996"
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for Date content. 
+        """Initializes a Notion date property using a readable date string.
 
-        This class instantiates a Notion Date Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the date field.
+            content (str): A date string in any expected user format.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionDateProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(
                 f'Expected a string, got {type(content).__name__}')
@@ -227,30 +289,35 @@ class NotionDateProperty(NotionProperty):
 
 
 class NotionEmailProperty(NotionProperty):
-    '''
-    Represents a Notion Email Property.
+    """Represents a Notion Email Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of email properties in Notion Pages.
+    Allows users to supply a raw email address string, and wraps it in the correct
+    Notion API format for use in database properties.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (string): A string value that represent an email.
-    '''
+        prop_name (str): The name of the property (e.g. "Contact").
+        content (str): The email address.
+
+    Example:
+        >>> prop = NotionEmailProperty("Email", "example@email.com")
+        >>> prop.to_json()
+        {
+            "Email": {
+                "email": "example@email.com"
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for Email content. 
+        """Initializes an Email property using a plain email string.
 
-        This class instantiates a Notion Email Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the email property.
+            content (str): The raw email address.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionEmailProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(
                 f'Expected a string, got {type(content).__name__}')
@@ -262,31 +329,37 @@ class NotionEmailProperty(NotionProperty):
 
 
 class NotionFilesProperty(NotionProperty):
-    '''
-    !!! DO NOT USE, NOTION API DOES NOT SUPPORT THIS YET !!!
-    Represents a Notion Files Property.
+    """Represents a Notion Files Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of files properties in Notion Pages.
+    !!! WARNING: Notion's API does not support creating files via this property yet.
+
+    Wraps a plain filename string into a property structure. Intended for future use or
+    reading existing file properties.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (str): A string value that represent the file name.
-    '''
+        prop_name (str): The name of the property.
+        content (str): The filename or file reference as a string.
+
+    Example:
+        >>> prop = NotionFilesProperty("Upload", "resume.pdf")
+        >>> prop.to_json()
+        {
+            "Upload": {
+                "files": "resume.pdf"
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for Files content. 
+        """Initializes a Files property using a filename string.
 
-        This class instantiates a Notion Files Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the files property.
+            content (str): The raw file name or reference.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionFilesProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(
                 f'Expected a string, got {type(content).__name__}')
@@ -298,33 +371,40 @@ class NotionFilesProperty(NotionProperty):
 
 
 class NotionFormulaProperty(NotionProperty):
-    '''
-    Represents a Notion Formula Property.
+    """Represents a Notion Formula Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of formula properties in Notion Pages.
+    Accepts a plain formula expression string and wraps it into the required format
+    for Notion’s formula field.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        expression (calculation): A calculation to be handed into property.
-    '''
+        prop_name (str): The name of the property (e.g. "Total").
+        content (str): A string formula expression.
+
+    Example:
+        >>> prop = NotionFormulaProperty("Formula", "prop(\"Price\") * prop(\"Quantity\")")
+        >>> prop.to_json()
+        {
+            "Formula": {
+                "formula": {
+                    "expression": "prop(\"Price\") * prop(\"Quantity\")"
+                }
+            }
+        }
+    """
 
     def __init__(self, prop_name, expression):
-        '''
-        Creates a Notion property for Formula content. 
+        """Initializes a Formula property using a plain expression string.
 
-        This class instantiates a Notion Formula Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the formula property.
+            expression (str): The raw formula expression string.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionFormulaProperty object
-        '''
-        # if not isinstance(content, str):
-        #     raise TypeError(
-        #         f'Expected a string, got {type(content).__name__}')
+        Raises:
+            TypeError: If `expression` is not a string.
+        """
+        if not isinstance(expression, str):
+            raise TypeError(
+                f'Expected a string, got {type(expression).__name__}')
 
         super().__init__(prop_name)
         self.content = {
@@ -335,32 +415,37 @@ class NotionFormulaProperty(NotionProperty):
 
 
 class NotionLastEditedByProperty(NotionProperty):
-    '''
-    !!! DO NOT USE; RESULTS IN ERROR IN PAGE CREATION !!!
+    """Represents a Notion 'Last Edited By' property.
 
-    Represents a Notion LastEditedBy Property.
+    !!! WARNING: This property is automatically set by Notion and cannot be modified.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of last edited by properties in Notion Pages.
+    Accepts a plain name string representing the last editor of the page. This class is
+    best used for display or read-only purposes.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (str): A str that represents the last person who edited the page.
-    '''
+        prop_name (str): The name of the property.
+        content (str): The name of the last editor.
+
+    Example:
+        >>> prop = NotionLastEditedByProperty("Last Editor", "Jane Doe")
+        >>> prop.to_json()
+        {
+            "Last Editor": {
+                "last_edited_by": "Jane Doe"
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for LastEditedBy content. 
+        """Initializes a LastEditedBy property using a raw name string.
 
-        This class instantiates a Notion LastEditedBy Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            content (str): The name of the person who last edited the page.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionLastEditedByProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(
                 f'Expected a string, got {type(content).__name__}')
@@ -372,32 +457,36 @@ class NotionLastEditedByProperty(NotionProperty):
 
 
 class NotionLastEditedTimeProperty(NotionProperty):
-    '''
-    !!! DO NOT USE; RESULTS IN ERROR IN PAGE CREATION !!!
+    """Represents a Notion 'Last Edited Time' property.
 
-    Represents a Notion LastEditedTime Property.
+    !!! WARNING: This property is set automatically by Notion and is read-only.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of last edited time properties in Notion Pages.
+    Accepts a plain date/time string and wraps it in the Notion format.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        time (str): A str that represents the last time this page was edited.
-    '''
+        prop_name (str): The name of the property.
+        content (str): The last edited timestamp.
+
+    Example:
+        >>> prop = NotionLastEditedTimeProperty("Edited", "04/03/2025 2:30 PM")
+        >>> prop.to_json()
+        {
+            "Edited": {
+                "lastEditedTime": "04/03/2025 2:30 PM"
+            }
+        }
+    """
 
     def __init__(self, prop_name, time):
-        '''
-        Creates a Notion property for LastEditedTime content. 
+        """Initializes a LastEditedTime property using a raw string.
 
-        This class instantiates a Notion LastEditedTime Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            time (str): A plain date/time string.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionLastEditedTimeProperty object
-        '''
+        Raises:
+            TypeError: If `time` is not a string.
+        """
         if not isinstance(time, str):
             raise TypeError(
                 f'Expected a string, got {type(time).__name__}')
@@ -409,30 +498,41 @@ class NotionLastEditedTimeProperty(NotionProperty):
 
 
 class NotionMultiSelectProperty(NotionProperty):
-    '''
-    Represents a Notion MultiSelect Property.
+    """Represents a Notion Multi-Select Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of multi select properties in Notion Pages.
+    Accepts a list of tags (as strings) and wraps them as multi-select options in the
+    correct Notion format.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (list[str]): A list of strings that represent tags.
-    '''
+        prop_name (str): The name of the multi-select property.
+        content (list[str]): A list of option names.
+
+    Example:
+        >>> prop = NotionMultiSelectProperty("Tags", ["Python", "API", "Automation"])
+        >>> prop.to_json()
+        {
+            "Tags": {
+                "multi_select": {
+                    "options": [
+                        {"name": "Python"},
+                        {"name": "API"},
+                        {"name": "Automation"}
+                    ]
+                }
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for Multi Select content. 
+        """Initializes a Multi-Select property using a list of tags.
 
-        This class instantiates a Notion Multi Select Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            content (list): A list of strings representing selected options.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionMultiSelectProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a list of strings.
+        """
         if not isinstance(content, list):
             raise TypeError(
                 f'Expected a list of strings, got {type(content).__name__}')
@@ -444,30 +544,34 @@ class NotionMultiSelectProperty(NotionProperty):
 
 
 class NotionNumberProperty(NotionProperty):
-    '''
-    Represents a Notion Number Property.
+    """Represents a Notion Number Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of number properties in Notion Pages.
+    Accepts a plain number (int or float) and wraps it for Notion API usage.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (int | float): A number to represent the number property.
-    '''
+        prop_name (str): The name of the number property.
+        content (int | float): A numeric value.
+
+    Example:
+        >>> prop = NotionNumberProperty("Score", 95.5)
+        >>> prop.to_json()
+        {
+            "Score": {
+                "number": 95.5
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for Number content. 
+        """Initializes a Number property using a plain number.
 
-        This class instantiates a Notion Number Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            content (int | float): The numeric value.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionNumberProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a number.
+        """
         if not isinstance(content, float) or not isinstance(content, int):
             raise TypeError(
                 f'Expected a number, got {type(content).__name__}')
@@ -479,30 +583,35 @@ class NotionNumberProperty(NotionProperty):
 
 
 class NotionPeopleProperty(NotionProperty):
-    '''
-    Represents a Notion People Property.
+    """Represents a Notion People Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of people properties in Notion Pages.
+    Accepts a list of plain names or user references, abstracting away the
+    API structure required by Notion for people fields.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (list[str]): A list of strings representing mentions of a user in the page.
-    '''
+        prop_name (str): The name of the people property.
+        content (list[str]): A list of people/user names.
+
+    Example:
+        >>> prop = NotionPeopleProperty("Team", ["Alice", "Bob"])
+        >>> prop.to_json()
+        {
+            "Team": {
+                "people": ["Alice", "Bob"]
+            }
+        }
+    """
 
     def __init__(self, prop_name, people):
-        '''
-        Creates a Notion property for People content. 
+        """Initializes a People property using a list of names or user references.
 
-        This class instantiates a Notion People Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            people (list[str]): A list of people names or identifiers.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionPeopleProperty object
-        '''
+        Raises:
+            TypeError: If `people` is not a list of strings.
+        """
         if not isinstance(people, float) or not isinstance(people, int):
             raise TypeError(
                 f'Expected a list of strings, got {type(people).__name__}')
@@ -514,30 +623,34 @@ class NotionPeopleProperty(NotionProperty):
 
 
 class NotionPhoneNumberProperty(NotionProperty):
-    '''
-    Represents a Notion PhoneNumber Property.
+    """Represents a Notion Phone Number Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of phone number properties in Notion Pages.
+    Accepts a plain phone number string and wraps it for use in Notion’s API.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (str): A string to represent a phone number in the page.
-    '''
+        prop_name (str): The name of the phone number property.
+        content (str): A raw phone number string.
+
+    Example:
+        >>> prop = NotionPhoneNumberProperty("Phone", "(555) 123-4567")
+        >>> prop.to_json()
+        {
+            "Phone": {
+                "phone_number": "(555) 123-4567"
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for Phone Number content. 
+        """Initializes a Phone Number property using a raw number string.
 
-        This class instantiates a Notion Phone Number Property for a Notion client. 
+         Args:
+             prop_name (str): The name of the property.
+             content (str): The phone number.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionPhoneNumberProperty object
-        '''
+         Raises:
+             TypeError: If `content` is not a string.
+         """
         if not isinstance(content, str):
             raise TypeError(
                 f'Expected a string, got {type(content).__name__}')
@@ -549,58 +662,81 @@ class NotionPhoneNumberProperty(NotionProperty):
 
 
 class NotionRelationProperty(NotionProperty):
-    '''
-    Represents a Notion Relation Property.
+    """Represents a Notion Relation Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of relation properties in Notion Pages.
+    Accepts a plain string representing a related page ID or value,
+    and wraps it for Notion's relation field.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (str): A string to represent a relation in the page.
-    '''
+        prop_name (str): The name of the relation property.
+        content (str): The ID or label of the related item.
+
+    Example:
+        >>> prop = NotionRelationProperty("Related Task", "abc123-task-id")
+        >>> prop.to_json()
+        {
+            "Related Task": {
+                "phone_number": "abc123-task-id"
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for Relation content. 
+        """Initializes a Relation property using a related ID or label.
 
-        This class instantiates a Notion Relation Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            content (str): The related page identifier or reference.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionRelationProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(
                 f'Expected a string, got {type(content).__name__}')
 
         super().__init__(prop_name)
         self.content = {
-            'phone_number': content
+            'relation': content
         }
 
 
 class NotionRichTextProperty(NotionProperty):
-    '''
-    Notion Text Property object. Allows for simple text to be uploaded to Notion
-    '''
+    """Represents a Notion Rich Text Property.
+
+    Accepts a plain string and wraps it as rich text for use in Notion databases.
+
+    Attributes:
+        prop_name (str): The name of the rich text property.
+        content (str): A plain string of text.
+
+    Example:
+        >>> prop = NotionRichTextProperty("Note", "Remember to follow up")
+        >>> prop.to_json()
+        {
+            "Note": {
+                "rich_text": [
+                    {
+                        "type": "text",
+                        "text": {
+                            "content": "Remember to follow up"
+                        }
+                    }
+                ]
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for rich text content. 
+        """Initializes a Rich Text property using a plain string.
 
-        This class instantiates a Notion Rich Text Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            content (str): The text content.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionRichTextProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(f'Expected a string, got {type(content).__name__}')
 
@@ -610,24 +746,43 @@ class NotionRichTextProperty(NotionProperty):
 
 
 class NotionRollupProperty(NotionProperty):
-    '''
-    !!! DO NOT USE TO CREATE PAGES; RESULTS IN ERROR !!!
-    Notion Text Property object. Allows for simple text to be uploaded to Notion
-    '''
+    """Represents a Notion Rollup Property.
+
+    !!! WARNING: Cannot be used to create new pages via API — read-only.
+
+    Accepts a plain string representing the rolled-up content for display purposes.
+
+    Attributes:
+        prop_name (str): The name of the rollup property.
+        content (str): The rolled-up value as a string.
+
+    Example:
+        >>> prop = NotionRollupProperty("Total Sales", "$1,250")
+        >>> prop.to_json()
+        {
+            "Total Sales": {
+                "rich_text": [
+                    {
+                        "type": "text",
+                        "text": {
+                            "content": "$1,250"
+                        }
+                    }
+                ]
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for rollup content. 
+        """Initializes a Rollup property using plain string content.
 
-        This class instantiates a Notion Rollup Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            content (str): The display value of the rollup.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionRollupProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(f'Expected a string, got {type(content).__name__}')
 
@@ -637,30 +792,38 @@ class NotionRollupProperty(NotionProperty):
 
 
 class NotionSelectProperty(NotionProperty):
-    '''
-    Represents a Notion Select Property.
+    """Represents a Notion Select Property.
 
-    This classes provides conversion methods to convert object to json format.
-    It also allows for the creation of select properties in Notion Pages.
+    Accepts a list with a single string value representing the selected option.
+    Internally wraps it in the correct format for Notion’s select fields.
 
     Attributes:
-        prop_name (str): Properties identifiable name.
-        content (list[str]): A list of strings that represent tags.
-    '''
+        prop_name (str): The name of the select property.
+        content (list[str]): A single-item list representing the selected option.
+
+    Example:
+        >>> prop = NotionSelectProperty("Priority", ["High"])
+        >>> prop.to_json()
+        {
+            "Priority": {
+                "select": {
+                    "options": [{"name": "High"}]
+                }
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for Select content. 
+        """Initializes a Select property using a single-option list.
 
-        This class instantiates a Notion Select Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the select field.
+            content (list[str]): A list with one string as the selected option.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionSelectProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a list of strings.
+            ValueError: If the list does not contain exactly one value.
+        """
         if not isinstance(content, list):
             raise TypeError(
                 f'Expected a list of strings, got {type(content).__name__}')
@@ -675,23 +838,37 @@ class NotionSelectProperty(NotionProperty):
 
 
 class NotionStatusProperty(NotionProperty):
-    '''
-    Notion Status Property object. Allows for a status to be uploaded to Notion
-    '''
+    """Represents a Notion Status Property.
+
+    Accepts a plain string that matches a predefined status name in Notion,
+    and wraps it accordingly.
+
+    Attributes:
+        prop_name (str): The name of the status property.
+        content (str): The selected status.
+
+    Example:
+        >>> prop = NotionStatusProperty("Stage", "In Progress")
+        >>> prop.to_json()
+        {
+            "Stage": {
+                "status": {
+                    "name": "In Progress"
+                }
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for status content. 
+        """Initializes a Status property using a plain string.
 
-        This class instantiates a Notion Status Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            content (str): The selected status name.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionStatusProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(f'Expected a string, got {type(content).__name__}')
 
@@ -704,23 +881,42 @@ class NotionStatusProperty(NotionProperty):
 
 
 class NotionTitleProperty(NotionProperty):
-    '''
-    Notion Title Property object. Allows for simple text to be uploaded to Notion
-    '''
+    """Represents a Notion Title Property.
+
+    Accepts a plain string and formats it as a title object for Notion.
+    This is the main field used as the page title in most databases.
+
+    Attributes:
+        prop_name (str): The name of the title property.
+        content (str): The title content.
+
+    Example:
+        >>> prop = NotionTitleProperty("Name", "My First Project")
+        >>> prop.to_json()
+        {
+            "Name": {
+                "title": [
+                    {
+                        "type": "text",
+                        "text": {
+                            "content": "My First Project"
+                        }
+                    }
+                ]
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for text content. 
+        """Initializes a Title property using a plain string.
 
-        This class instantiates a Notion Title Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            content (str): The title text.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionTitleProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(f'Expected a string, got {type(content).__name__}')
 
@@ -741,23 +937,34 @@ class NotionTitleProperty(NotionProperty):
 
 
 class NotionUrlProperty(NotionProperty):
-    '''
-    Notion Url Property object. Allows for simple text to be uploaded to Notion
-    '''
+    """Represents a Notion URL Property.
+
+    Accepts a plain URL string and formats it for use in Notion database properties.
+
+    Attributes:
+        prop_name (str): The name of the URL property.
+        content (str): The URL string.
+
+    Example:
+        >>> prop = NotionUrlProperty("Website", "https://example.com")
+        >>> prop.to_json()
+        {
+            "Website": {
+                "url": "https://example.com"
+            }
+        }
+    """
 
     def __init__(self, prop_name, content):
-        '''
-        Creates a Notion property for text content. 
+        """Initializes a URL property using a plain string.
 
-        This class instantiates a Notion Url Property for a Notion client. 
+        Args:
+            prop_name (str): The name of the property.
+            content (str): The URL value.
 
-        Parameters:
-            @prop_name = Property's name (User assigned to Todo)
-            @content = Content used in property. (The todos in the list)
-
-        Returns:
-            NotionUrlProperty object
-        '''
+        Raises:
+            TypeError: If `content` is not a string.
+        """
         if not isinstance(content, str):
             raise TypeError(f'Expected a string, got {type(content).__name__}')
 
