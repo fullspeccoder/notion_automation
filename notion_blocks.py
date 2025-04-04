@@ -173,13 +173,13 @@ class NotionBlock:
         }
     '''
 
-    def __init__(self, type):
+    def __init__(self, type_id):
          '''Initializes a base Notion block.
 
             Args:
                 type (str): The Notion block type (e.g., "code", "paragraph").
         '''
-        self.type = type
+        self.type = type_id
         self.content = dict()
 
     def to_dict(self):
