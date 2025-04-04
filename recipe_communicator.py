@@ -1,5 +1,18 @@
 import requests as rq
 from notion_props import *
+"""filename
+
+Desc
+
+Includes:
+    - feature
+
+Example:
+    >>> example here
+
+Notes:
+    
+"""
 
 
 class MealAPI:
@@ -145,3 +158,25 @@ meal_parser = MealParser()
 parsed_random_meal = meal_parser.parse_meal(random_meal)
 
 print(parsed_random_meal)
+# Recipe Page Creator
+# client.blocks.children.append(block_id=page_id, children=[
+#                               heading,
+#                               divider,
+#                               todo,
+#                               todo,
+#                               todo,
+#                               todo,
+#                               todo,
+#                               todo,
+#                               todo,
+#                               heading2,
+#                               divider,
+#                               number_list_item,
+#                               number_list_item,
+#                               number_list_item,
+#                               heading3,
+#                               bulleted_list_item,
+#                               bulleted_list_item,
+#                               bulleted_list_item,
+#                               divider,
+#                               ])
