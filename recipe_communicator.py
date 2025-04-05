@@ -125,6 +125,7 @@ recipe = NotionRecipe(os.getenv("NOTION_RECIPE_DATABASE_ID"), "🍕", [],
 
 notion_client = Client(auth=os.getenv("NOTION_API_KEY"))
 
+# The databse id here is now visible throughout the program, it would be better to use the ospdule to grab it everytime
 notion_client.pages.create(page_id=recipe.db_id, **recipe.to_dict())
 
 
