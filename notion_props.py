@@ -81,7 +81,7 @@ class NotionProperties:
         """
         obj = {}
         for prop in self.properties:
-            obj.update(prop.to_dict())
+            obj.update(prop)
 
         return obj
 
@@ -129,6 +129,7 @@ class NotionProperty:
         Returns:
             dict: A dictionary representing the Notion property in API format.
         """
+        print({self.prop_name: self.content})
         return {self.prop_name: self.content}
 
 
@@ -539,7 +540,7 @@ class NotionMultiSelectProperty(NotionProperty):
 
         super().__init__(prop_name)
         self.content = {
-            'multi_select': {"options": [{'name': selected_name} for selected_name in content]}
+            'multi_select': [{'name': selected_name} for selected_name in content]
         }
 
 
@@ -818,23 +819,22 @@ class NotionSelectProperty(NotionProperty):
 
         Args:
             prop_name (str): The name of the select field.
-            content (list[str]): A list with one string as the selected option.
+            content (str): A str with one string as the selected option.
 
         Raises:
-            TypeError: If `content` is not a list of strings.
-            ValueError: If the list does not contain exactly one value.
+            TypeError: If `content` is not a string.
         """
-        if not isinstance(content, list):
+        if not isinstance(content, str):
             raise TypeError(
-                f'Expected a list of strings, got {type(content).__name__}')
-
-        if len(content) != 1:
-            raise ValueError('List must contain only 1 value')
+                f'Expected a str, got {type(content).__name__}')
 
         super().__init__(prop_name)
         self.content = {
-            'select': {"options": [{"name": name} for name in content]}
+            "select": {
+                "name": content
+            }
         }
+        print(self.content)
 
 
 class NotionStatusProperty(NotionProperty):
@@ -922,6 +922,7 @@ class NotionTitleProperty(NotionProperty):
 
         super().__init__(prop_name)
         self.content = {
+            "type": "title",
             'title': [
                 {
                     'type': "text",

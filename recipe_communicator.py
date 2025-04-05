@@ -1,5 +1,9 @@
 import requests as rq
+import os
+from dotenv import load_dotenv
+from notion_client import Client
 from notion_props import *
+from notion_pages import NotionDatabase
 """filename
 
 Desc
@@ -90,6 +94,40 @@ class MealParser:
         return meal
 
 
+class NotionRecipe(NotionDatabase):
+    def __init__(self, db_id, emoji, children, cover_url, category='Breakfast'):
+        super().__init__(db_id, emoji=emoji, children=children, cover_url=cover_url)
+        self.db_id = db_id
+        self.properties = NotionProperties()
+        # Category (Select Property)
+        self.properties.add_property(
+            NotionSelectProperty("Category", category))
+        # Source URL (URL Property)
+        self.properties.add_property(NotionUrlProperty(
+            "Source URL", "http://www.vodkaandbiscuits.com/2014/03/06/bangin-breakfast-potatoes/"))
+        # Tags (Multi Select Property)
+        self.properties.add_property(NotionMultiSelectProperty(
+            "Tags", ["Breakfast", "Italian"]))
+        # Youtube URL (URL Property)
+        self.properties.add_property(NotionUrlProperty(
+            "Youtube URL", "https://www.youtube.com/watch?v=BoD0TIO9nE4"))
+        # Name (Title Property)
+        self.properties.add_property(NotionTitleProperty(
+            "Name", "Garlic Bread Sloppy Joes"))
+        self.properties = self.properties.to_dict()
+        # Instructions (Textual Block)
+        # Ingredients (Todo Block)
+
+
+load_dotenv()
+recipe = NotionRecipe(os.getenv("NOTION_RECIPE_DATABASE_ID"), "🍕", [],
+                      "https://www.themealdb.com/images/media/meals/1550441882.jpg")
+
+notion_client = Client(auth=os.getenv("NOTION_API_KEY"))
+
+notion_client.pages.create(page_id=recipe.db_id, **recipe.to_dict())
+
+
 meal_object = {
     "meals": [
         {
@@ -150,14 +188,14 @@ meal_object = {
     ]
 }
 
-api = MealAPI()
-random_meal = api.get_random_meal()
+# api = MealAPI()
+# random_meal = api.get_random_meal()
 
-meal_parser = MealParser()
+# meal_parser = MealParser()
 
-parsed_random_meal = meal_parser.parse_meal(random_meal)
+# parsed_random_meal = meal_parser.parse_meal(random_meal)
 
-print(parsed_random_meal)
+# print(parsed_random_meal)
 # Recipe Page Creator
 # client.blocks.children.append(block_id=page_id, children=[
 #                               heading,
