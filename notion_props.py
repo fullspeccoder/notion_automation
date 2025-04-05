@@ -42,7 +42,7 @@ class NotionProperties:
         """Initializes an empty NotionProperties container."""
         self.properties = list()
 
-    def add_property(self, prop):
+    def add_property(self, prop: NotionProperty) -> None:
         """Adds a single NotionProperty object to the properties list.
 
         Args:
@@ -58,7 +58,7 @@ class NotionProperties:
 
         self.properties.append(prop.to_json())
 
-    def add_properties(self, props):
+    def add_properties(self, props: list) -> None:
         """Adds multiple NotionProperty objects to the properties list.
 
         Args:
@@ -73,7 +73,7 @@ class NotionProperties:
 
         self.properties = props
 
-    def to_dict(self):
+    def to_dict(self) -> dict:
         """Converts the stored properties into a dictionary.
 
         Returns:
@@ -114,7 +114,7 @@ class NotionProperty:
         }
     """
 
-    def __init__(self, prop_name):
+    def __init__(self, prop_name: str):
         """Initializes a base NotionProperty.
 
         Args:
@@ -123,13 +123,12 @@ class NotionProperty:
         self.prop_name = prop_name
         self.content = dict()
 
-    def to_json(self):
+    def to_json(self) -> dict:
         """Converts the property into Notion-compatible JSON.
 
         Returns:
             dict: A dictionary representing the Notion property in API format.
         """
-        print({self.prop_name: self.content})
         return {self.prop_name: self.content}
 
 
@@ -147,7 +146,7 @@ class NotionCheckboxProperty(NotionProperty):
         >>> checkbox = NotionCheckboxProperty("Completed", True)
     """
 
-    def __init__(self, prop_name, content):
+    def __init__(self, prop_name: str, content: bool):
         """Initializes a NotionCheckboxProperty.
 
         Args:
@@ -176,7 +175,6 @@ class NotionCreatedByProperty(NotionProperty):
     Internally converts it into the correct structure for Notion's API.
 
     Attributes:
-        prop_name (str): The property name (always "Created By").
         content (str): The plain string name of the creator.
 
     Example:
@@ -230,7 +228,7 @@ class NotionCreatedTimeProperty(NotionProperty):
         }
     """
 
-    def __init__(self, content):
+    def __init__(self, content: str):
         """Initializes the CreatedTime property with a raw string timestamp.
 
         Args:
@@ -269,7 +267,7 @@ class NotionDateProperty(NotionProperty):
         }
     """
 
-    def __init__(self, prop_name, content):
+    def __init__(self, prop_name: str, content: str):
         """Initializes a Notion date property using a readable date string.
 
         Args:
@@ -309,7 +307,7 @@ class NotionEmailProperty(NotionProperty):
         }
     """
 
-    def __init__(self, prop_name, content):
+    def __init__(self, prop_name: str, content: str):
         """Initializes an Email property using a plain email string.
 
         Args:
@@ -351,7 +349,7 @@ class NotionFilesProperty(NotionProperty):
         }
     """
 
-    def __init__(self, prop_name, content):
+    def __init__(self, prop_name: str, content: str):
         """Initializes a Files property using a filename string.
 
         Args:
@@ -393,7 +391,7 @@ class NotionFormulaProperty(NotionProperty):
         }
     """
 
-    def __init__(self, prop_name, expression):
+    def __init__(self, prop_name: str, expression: str):
         """Initializes a Formula property using a plain expression string.
 
         Args:
@@ -437,7 +435,7 @@ class NotionLastEditedByProperty(NotionProperty):
         }
     """
 
-    def __init__(self, prop_name, content):
+    def __init__(self, prop_name: str, content: str):
         """Initializes a LastEditedBy property using a raw name string.
 
         Args:
@@ -478,7 +476,7 @@ class NotionLastEditedTimeProperty(NotionProperty):
         }
     """
 
-    def __init__(self, prop_name, time):
+    def __init__(self, prop_name: str, time: str):
         """Initializes a LastEditedTime property using a raw string.
 
         Args:
