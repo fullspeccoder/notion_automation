@@ -1,6 +1,4 @@
-from enum import Enum
-'''
-notion_blocks.py
+'''notion_blocks.py
 
 Provides high-level abstractions for building Notion API-compatible blocks
 without manually writing the complex nested JSON structures.
@@ -27,6 +25,9 @@ Example:
         }
     }
 '''
+
+
+from enum import Enum
 
 
 class NotionColor(Enum):
@@ -174,16 +175,16 @@ class NotionBlock:
     '''
 
     def __init__(self, type_id):
-         '''Initializes a base Notion block.
+        '''Initializes a base Notion block.
 
             Args:
-                type (str): The Notion block type (e.g., "code", "paragraph").
+                type_id (str): The Notion block type (e.g., "code", "paragraph").
         '''
         self.type = type_id
         self.content = dict()
 
     def to_dict(self):
-         '''Returns the full dictionary representation of the block.
+        '''Returns the full dictionary representation of the block.
 
         Returns:
             dict: A Notion API-compatible dictionary with type and content.
@@ -203,7 +204,6 @@ class NotionBlock:
             ValueError: If the string does not match any valid NotionColor.
             TypeError: If the input is not a string or NotionColor.
         '''
-        '''Converts a string or NotionColor enum to a valid NotionColor.'''
         if isinstance(color_input, NotionColor):
             return color_input
         elif isinstance(color_input, str):
@@ -244,6 +244,7 @@ class NotionBookmarkBlock(NotionBlock):
             }
         }
     """
+
     def __init__(self, caption=None, url=None):
         super().__init__("bookmark")
         self.content = {"caption": [{"rich_text": [
@@ -276,7 +277,8 @@ class NotionBreadcrumbBlock(NotionBlock):
             "breadcrumb": {}
         }
     """
-    def __init__(self, text=None, color=NotionColor.DEFAULT):
+
+    def __init__(self, color=NotionColor.DEFAULT):
         color = self.resolve_color(color)
         super().__init__("breadcrumb")
         self.content = {}
@@ -296,6 +298,7 @@ class NotionBulletedListItem(NotionBlock):
         >>> block = NotionBulletedListItem("Learn Python", NotionColor.BLUE)
         >>> block.to_dict()
     """
+
     def __init__(self, text, color=NotionColor.DEFAULT, children=None):
         color = self.resolve_color(color)
         super().__init__('bulleted_list_item')
@@ -328,6 +331,7 @@ class NotionCalloutBlock(NotionBlock):
         >>> block = NotionCalloutBlock("Remember to hydrate!", "💧", NotionColor.YELLOW)
         >>> block.to_dict()
     """
+
     def __init__(self, text=None, emoji="⭐️", color=NotionColor.DEFAULT):
         color = self.resolve_color(color)
         super().__init__("callout")
@@ -359,6 +363,7 @@ class NotionCodeBlock(NotionBlock):
         >>> block = NotionCodeBlock("print('Hello')", "python")
         >>> block.to_dict()
     """
+
     def __init__(self, code=None, language="javascript"):
         language = self.resolve_code_language(language)
         super().__init__("code")
@@ -413,6 +418,7 @@ class NotionColumnListBlock(NotionBlock):
         >>> block = NotionColumnListBlock()
         >>> block.to_dict()
     """
+
     def __init__(self):
         super().__init__("column_list")
         self.content = {}
@@ -428,13 +434,14 @@ class NotionColumnBlock(NotionBlock):
         >>> block = NotionColumnBlock()
         >>> block.to_dict()
     """
+
     def __init__(self):
         super().__init__("column")
         self.content = {}
 
 
 class NotionDivider(NotionBlock):
-     """Represents a Notion Divider block.
+    """Represents a Notion Divider block.
 
     A horizontal rule used to visually separate content.
 
@@ -442,13 +449,14 @@ class NotionDivider(NotionBlock):
         >>> block = NotionDivider()
         >>> block.to_dict()
     """
+
     def __init__(self):
         super().__init__('divider')
         self.content = {}
 
 
 class NotionEmbedBlock(NotionBlock):
-     """Represents a Notion Embed block.
+    """Represents a Notion Embed block.
 
     Embeds external media (like videos, audio, or web tools) via a URL.
 
@@ -463,6 +471,7 @@ class NotionEmbedBlock(NotionBlock):
         >>> block = NotionEmbedBlock("https://vimeo.com/123456")
         >>> block.to_dict()
     """
+
     def __init__(self, url=None):
         super().__init__("embed")
         self.content = {
@@ -471,7 +480,7 @@ class NotionEmbedBlock(NotionBlock):
 
 
 class NotionEquationBlock(NotionBlock):
-     """Represents a Notion Equation block.
+    """Represents a Notion Equation block.
 
     Displays a KaTeX compatible equation.
 
@@ -482,6 +491,7 @@ class NotionEquationBlock(NotionBlock):
         >>> block = NotionEquationBlock("x^2 + y^2 = z^2")
         >>> block.to_dict()
     """
+
     def __init__(self, expression=None):
         super().__init__("equation")
         self.content = {"expression": expression}
@@ -503,6 +513,7 @@ class NotionFileBlock(NotionBlock):
         >>> block = NotionFileBlock("https://example.com/myfile.pdf", "Resume.pdf")
         >>> block.to_dict()
     """
+
     def __init__(self, url=None, name=None):
         super().__init__("file")
         self.content = {
@@ -529,9 +540,10 @@ class NotionHeading(NotionBlock):
         >>> block = NotionHeading(2, "Project Overview", NotionColor.BLUE)
         >>> block.to_dict()
     """
-    def __init__(self, type, text, color="default"):
+
+    def __init__(self, type_id, text, color="default"):
         color = self.resolve_color(color)
-        super().__init__(f"heading_{type}")
+        super().__init__(f"heading_{type_id}")
         self.content = {
             "rich_text": [
                 {
@@ -562,6 +574,7 @@ class NotionImageBlock(NotionBlock):
         >>> block = NotionImageBlock("https://example.com/image.png")
         >>> block.to_dict()
     """
+
     def __init__(self, url=None):
         super().__init__("image")
         self.content = {
@@ -588,6 +601,7 @@ class NotionLinkPreviewBlock(NotionBlock):
         >>> block = NotionLinkPreviewBlock("https://github.com")
         >>> block.to_dict()
     """
+
     def __init__(self, url=None):
         super().__init__("link_preview")
         self.content = {
@@ -613,6 +627,7 @@ class NotionMentionBlock(NotionBlock):
         >>> block = NotionMentionBlock("some-page-id")
         >>> block.to_dict()
     """
+
     def __init__(self, page_id=None):
         super().__init__("page")
         self.content = {
@@ -633,6 +648,7 @@ class NotionNumberedListItem(NotionBlock):
         >>> block = NotionNumberedListItem("Step 1", NotionColor.GREEN)
         >>> block.to_dict()
     """
+
     def __init__(self, text, color=NotionColor.DEFAULT):
         color = self.resolve_color(color)
         super().__init__('numbered_list_item')
@@ -651,7 +667,7 @@ class NotionNumberedListItem(NotionBlock):
 
 
 class NotionParagraphBlock(NotionBlock):
-     """Represents a Notion Paragraph block.
+    """Represents a Notion Paragraph block.
 
     Creates a basic block of rich text content.
 
@@ -663,6 +679,7 @@ class NotionParagraphBlock(NotionBlock):
         >>> block = NotionParagraphBlock("This is a paragraph.", NotionColor.GRAY)
         >>> block.to_dict()
     """
+
     def __init__(self, text=None, color=NotionColor.DEFAULT):
         color = self.resolve_color(color)
         super().__init__("paragraph")
@@ -678,7 +695,8 @@ class NotionParagraphBlock(NotionBlock):
         }
 
 
-class NotionPDFBlock(NotionBlock):"""Represents a Notion PDF block.
+class NotionPDFBlock(NotionBlock):
+    """Represents a Notion PDF block.
 
     Embeds a PDF from an external URL.
 
@@ -687,8 +705,9 @@ class NotionPDFBlock(NotionBlock):"""Represents a Notion PDF block.
 
     Example:
         >>> block = NotionPDFBlock("https://example.com/file.pdf")
-        >>> block.to_dict()
+        >>> block.to_dict(
     """
+
     def __init__(self, url=None):
         super().__init__("pdf")
         self.content = {
@@ -716,6 +735,7 @@ class NotionQuoteBlock(NotionBlock):
         >>> block = NotionQuoteBlock("Do or do not. There is no try.")
         >>> block.to_dict()
     """
+
     def __init__(self, text=None, color=NotionColor.DEFAULT):
         color = self.resolve_color(color)
         super().__init__("quote")
@@ -744,6 +764,7 @@ class NotionSyncedBlock(NotionBlock):
         >>> block = NotionSyncedBlockBlock()
         >>> block.to_dict()
     """
+
     def __init__(self):
         super().__init__("synced_block")
         self.content = {
@@ -752,6 +773,7 @@ class NotionSyncedBlock(NotionBlock):
         }
 
     def append_child(self, child):
+        """Appends child to Synced Block"""
         self.content['children'][0].update(child.to_dict())
 
 
@@ -773,6 +795,7 @@ class NotionTableOfContentsBlock(NotionBlock):
         >>> block = NotionTableOfContentsBlock()
         >>> block.to_dict()
     """
+
     def __init__(self, color=NotionColor.DEFAULT):
         color = self.resolve_color(color)
         super().__init__("table_of_contents")
@@ -795,6 +818,7 @@ class NotionTodo(NotionBlock):
         >>> block = NotionToDoBlock("Finish homework", checked=True)
         >>> block.to_dict()
     """
+
     def __init__(self, text, color="default", checked=False):
         color = self.resolve_color(color)
         super().__init__("to_do")
@@ -824,6 +848,7 @@ class NotionToggleBlock(NotionBlock):
         >>> block = NotionToggleBlock("Click to expand")
         >>> block.to_dict()
     """
+
     def __init__(self, text=None, children=None, color=NotionColor.DEFAULT):
         color = self.resolve_color(color)
         super().__init__("toggle")
@@ -859,6 +884,7 @@ class NotionVideoBlock(NotionBlock):
         >>> block = NotionVideoBlock("https://youtube.com/watch?v=xyz")
         >>> block.to_dict()
     """
+
     def __init__(self, url=None, color=NotionColor.DEFAULT):
         color = self.resolve_color(color)
         super().__init__("video")
