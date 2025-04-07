@@ -30,37 +30,6 @@ Example:
 from enum import Enum
 
 
-class NotionColor(Enum):
-    '''Enum representing supported Notion color options.
-
-    This enum includes both text and background color values that can be
-    applied to various block types in the Notion API.
-
-    Example:
-        >>> NotionColor.BLUE.value
-        'blue'
-    '''
-    BLUE = 'blue'
-    BROWN = 'brown'
-    DEFAULT = 'default'
-    GRAY = 'gray'
-    GREEN = 'green'
-    ORANGE = 'orange'
-    YELLOW = 'yellow'
-    PINK = 'pink'
-    PURPLE = 'purple'
-    RED = 'red'
-    BLUE_BACKGROUND = 'blue_background'
-    BROWN_BACKGROUND = 'brown_background'
-    GRAY_BACKGROUND = 'gray_background'
-    GREEN_BACKGROUND = 'green_background'
-    ORANGE_BACKGROUND = 'orange_background'
-    YELLOW_BACKGROUND = 'yellow_background'
-    PINK_BACKGROUND = 'pink_background'
-    PURPLE_BACKGROUND = 'purple_background'
-    RED_BACKGROUND = 'red_background'
-
-
 class NotionCodeLanguage(Enum):
     '''Enum representing programming languages supported in Notion code blocks.
 
@@ -204,16 +173,11 @@ class NotionBlock:
             ValueError: If the string does not match any valid NotionColor.
             TypeError: If the input is not a string or NotionColor.
         '''
-        if isinstance(color_input, NotionColor):
+        if color_input in ['blue', 'brown', 'default', 'gray', 'green', 'orange', 'yellow', 'pink', 'purple', 'red', 'blue_background', 'brown_background', 'default', 'gray_background', 'green_background', 'orange_background', 'yellow_background', 'pink_background', 'purple_background', 'red_background',]:
             return color_input
-        elif isinstance(color_input, str):
-            try:
-                return NotionColor(color_input)
-            except ValueError:
-                raise ValueError(
-                    f"Invalid color: {color_input}. Must be one of {[c.value for c in NotionColor]}")
         else:
-            raise TypeError("Color must be a str or NotionColor enum")
+            raise ValueError(
+                f"Invalid color: {color_input}. Must be one of {[c.value for c in NotionColor]}")
 
 
 class NotionBookmarkBlock(NotionBlock):
@@ -278,7 +242,7 @@ class NotionBreadcrumbBlock(NotionBlock):
         }
     """
 
-    def __init__(self, color=NotionColor.DEFAULT):
+    def __init__(self, color='default'):
         color = self.resolve_color(color)
         super().__init__("breadcrumb")
         self.content = {}
@@ -299,7 +263,7 @@ class NotionBulletedListItem(NotionBlock):
         >>> block.to_dict()
     """
 
-    def __init__(self, text, color=NotionColor.DEFAULT, children=None):
+    def __init__(self, text, color='default', children=list()):
         color = self.resolve_color(color)
         super().__init__('bulleted_list_item')
         self.content = {
@@ -332,7 +296,7 @@ class NotionCalloutBlock(NotionBlock):
         >>> block.to_dict()
     """
 
-    def __init__(self, text=None, emoji="⭐️", color=NotionColor.DEFAULT):
+    def __init__(self, text=None, emoji="⭐️", color='default'):
         color = self.resolve_color(color)
         super().__init__("callout")
         self.content = {
@@ -649,7 +613,7 @@ class NotionNumberedListItem(NotionBlock):
         >>> block.to_dict()
     """
 
-    def __init__(self, text, color=NotionColor.DEFAULT):
+    def __init__(self, text, color='default'):
         color = self.resolve_color(color)
         super().__init__('numbered_list_item')
         self.content = {
@@ -680,7 +644,7 @@ class NotionParagraphBlock(NotionBlock):
         >>> block.to_dict()
     """
 
-    def __init__(self, text=None, color=NotionColor.DEFAULT):
+    def __init__(self, text=None, color='default'):
         color = self.resolve_color(color)
         super().__init__("paragraph")
         self.content = {
@@ -736,7 +700,7 @@ class NotionQuoteBlock(NotionBlock):
         >>> block.to_dict()
     """
 
-    def __init__(self, text=None, color=NotionColor.DEFAULT):
+    def __init__(self, text=None, color='default'):
         color = self.resolve_color(color)
         super().__init__("quote")
         self.content = {
@@ -778,7 +742,7 @@ class NotionSyncedBlock(NotionBlock):
 
 
 # class NotionTableBlock(NotionBlock):
-#     def __init__(self, text=None, color=NotionColor.DEFAULT):
+#     def __init__(self, text=None, color='default'):
 #         color = self.resolve_color(color)
 #         pass
 
@@ -796,7 +760,7 @@ class NotionTableOfContentsBlock(NotionBlock):
         >>> block.to_dict()
     """
 
-    def __init__(self, color=NotionColor.DEFAULT):
+    def __init__(self, color='default'):
         color = self.resolve_color(color)
         super().__init__("table_of_contents")
         self.content = {
@@ -849,7 +813,7 @@ class NotionToggleBlock(NotionBlock):
         >>> block.to_dict()
     """
 
-    def __init__(self, text=None, children=None, color=NotionColor.DEFAULT):
+    def __init__(self, text=None, children=None, color='default'):
         color = self.resolve_color(color)
         super().__init__("toggle")
         self.content = {
@@ -885,7 +849,7 @@ class NotionVideoBlock(NotionBlock):
         >>> block.to_dict()
     """
 
-    def __init__(self, url=None, color=NotionColor.DEFAULT):
+    def __init__(self, url=None, color='default'):
         color = self.resolve_color(color)
         super().__init__("video")
         self.content = {

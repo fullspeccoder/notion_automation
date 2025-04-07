@@ -19,73 +19,6 @@ Example:
 '''
 
 
-class NotionProperties:
-    """Represents a collection of Notion property objects for a page.
-
-    This class acts as a container and manager for Notion property components,
-    providing methods to add individual or multiple properties and convert them
-    into a dictionary format suitable for the Notion API.
-
-    Attributes:
-        properties (list): A list of JSON-like property dictionaries.
-
-    Example:
-        >>> title = NotionTitleProperty("Name", "My Task")
-        >>> date = NotionDateProperty("Due Date", "2025-04-03")
-        >>> props = NotionProperties()
-        >>> props.add_property(title)
-        >>> props.add_property(date)
-        >>> notion_payload = props.to_dict()
-    """
-
-    def __init__(self):
-        """Initializes an empty NotionProperties container."""
-        self.properties = list()
-
-    def add_property(self, prop: NotionProperty) -> None:
-        """Adds a single NotionProperty object to the properties list.
-
-        Args:
-            prop (NotionProperty): The property object to add.
-
-        Raises:
-            TypeError: If `prop` is not an instance of NotionProperty.
-        """
-
-        if not isinstance(prop, NotionProperty):
-            raise TypeError(
-                f'Expected a NotionProperty Object, got {type(prop).__name__}')
-
-        self.properties.append(prop.to_json())
-
-    def add_properties(self, props: list) -> None:
-        """Adds multiple NotionProperty objects to the properties list.
-
-        Args:
-            props (list): A list of NotionProperty objects.
-
-        Raises:
-            TypeError: If `props` is not a list of NotionProperty objects.
-        """
-        if not isinstance(props, list):
-            raise TypeError(
-                f'Expected a list of NotionProperty Objects, got {type(props).__name__}')
-
-        self.properties = props
-
-    def to_dict(self) -> dict:
-        """Converts the stored properties into a dictionary.
-
-        Returns:
-            dict: A dictionary of Notion properties formatted for the Notion API.
-        """
-        obj = {}
-        for prop in self.properties:
-            obj.update(prop)
-
-        return obj
-
-
 class NotionProperty:
     """Base class for all Notion property types.
 
@@ -283,7 +216,9 @@ class NotionDateProperty(NotionProperty):
 
         super().__init__(prop_name)
         self.content = {
-            'date': content
+            'date': {
+                "start": content
+            }
         }
 
 
@@ -571,7 +506,7 @@ class NotionNumberProperty(NotionProperty):
         Raises:
             TypeError: If `content` is not a number.
         """
-        if not isinstance(content, float) or not isinstance(content, int):
+        if not isinstance(content, float) and not isinstance(content, int):
             raise TypeError(
                 f'Expected a number, got {type(content).__name__}')
 
@@ -832,7 +767,6 @@ class NotionSelectProperty(NotionProperty):
                 "name": content
             }
         }
-        print(self.content)
 
 
 class NotionStatusProperty(NotionProperty):
@@ -857,11 +791,10 @@ class NotionStatusProperty(NotionProperty):
         }
     """
 
-    def __init__(self, prop_name, content):
+    def __init__(self, content):
         """Initializes a Status property using a plain string.
 
         Args:
-            prop_name (str): The name of the property.
             content (str): The selected status name.
 
         Raises:
@@ -870,7 +803,7 @@ class NotionStatusProperty(NotionProperty):
         if not isinstance(content, str):
             raise TypeError(f'Expected a string, got {type(content).__name__}')
 
-        super().__init__(prop_name)
+        super().__init__("Status")
         self.content = {
             "status": {
                 "name": content
@@ -905,7 +838,7 @@ class NotionTitleProperty(NotionProperty):
         }
     """
 
-    def __init__(self, prop_name, content):
+    def __init__(self, content):
         """Initializes a Title property using a plain string.
 
         Args:
@@ -918,7 +851,7 @@ class NotionTitleProperty(NotionProperty):
         if not isinstance(content, str):
             raise TypeError(f'Expected a string, got {type(content).__name__}')
 
-        super().__init__(prop_name)
+        super().__init__("Name")
         self.content = {
             "type": "title",
             'title': [
@@ -974,3 +907,70 @@ class NotionUrlProperty(NotionProperty):
 
     def __str__(self):
         return f"{self.prop_name}: {self.content}"
+
+
+class NotionProperties:
+    """Represents a collection of Notion property objects for a page.
+
+    This class acts as a container and manager for Notion property components,
+    providing methods to add individual or multiple properties and convert them
+    into a dictionary format suitable for the Notion API.
+
+    Attributes:
+        properties (list): A list of JSON-like property dictionaries.
+
+    Example:
+        >>> title = NotionTitleProperty("Name", "My Task")
+        >>> date = NotionDateProperty("Due Date", "2025-04-03")
+        >>> props = NotionProperties()
+        >>> props.add_property(title)
+        >>> props.add_property(date)
+        >>> notion_payload = props.to_dict()
+    """
+
+    def __init__(self):
+        """Initializes an empty NotionProperties container."""
+        self.properties = list()
+
+    def add_property(self, prop: NotionProperty) -> None:
+        """Adds a single NotionProperty object to the properties list.
+
+        Args:
+            prop (NotionProperty): The property object to add.
+
+        Raises:
+            TypeError: If `prop` is not an instance of NotionProperty.
+        """
+
+        if not isinstance(prop, NotionProperty):
+            raise TypeError(
+                f'Expected a NotionProperty Object, got {type(prop).__name__}')
+
+        self.properties.append(prop.to_json())
+
+    def add_properties(self, props: list) -> None:
+        """Adds multiple NotionProperty objects to the properties list.
+
+        Args:
+            props (list): A list of NotionProperty objects.
+
+        Raises:
+            TypeError: If `props` is not a list of NotionProperty objects.
+        """
+        if not isinstance(props, list):
+            raise TypeError(
+                f'Expected a list of NotionProperty Objects, got {type(props).__name__}')
+
+        self.properties = props
+
+    def to_dict(self) -> dict:
+        """Converts the stored properties into a dictionary.
+
+        Returns:
+            dict: A dictionary of Notion properties formatted for the Notion API.
+        """
+        obj = {}
+        for prop in self.properties:
+            obj.update(prop)
+
+        return obj

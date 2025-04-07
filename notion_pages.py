@@ -70,7 +70,7 @@ class NotionObject:
         self.properties = properties or dict()
         self.children = children or list()
         self.icon = {"emoji": emoji or ""}
-        self.cover = {"external": {"url": cover_url or ""}}
+        self.cover = {"external": {"url": cover_url}}
 
     def set_parent_page(self, p_id):
         """Sets the parent of the Notion object to a page.
@@ -190,7 +190,7 @@ class NotionObject:
         '''
 
         return {"parent": self.parent, "icon": self.icon, "cover": self.cover,
-                "properties": self.properties, "children": self.children}
+                "properties": self.properties, "children": [child.to_dict() for child in self.children]}
 
     def __str__(self):
         '''Returns a string representation of the Notion Object.

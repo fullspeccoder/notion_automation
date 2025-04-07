@@ -1,12 +1,14 @@
 import os
 from dotenv import load_dotenv
 from notion_client import Client
-import notion_props as NO
-import notion_pages as NP
 
 load_dotenv()
 
-# client = Client(auth=os.getenv('NOTION_API_KEY'))
+client = Client(auth=os.getenv('NOTION_API_KEY'))
+
+page = client.pages.retrieve(page_id="187c76d688a8802aa01fe869f6bbd656")
+
+print(page)
 
 
 # new_page.set_parent_page(os.getenv("NOTION_PAGE_ID"))

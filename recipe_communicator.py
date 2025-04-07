@@ -1,21 +1,37 @@
 import requests as rq
-import os
-from dotenv import load_dotenv
-from notion_client import Client
 from notion_props import *
+from notion_blocks import *
 from notion_pages import NotionDatabase
-"""filename
+"""recipe_communicator.py
 
-Desc
+Module used to communicate with themealdb database to grab
+recipes to send to Notion.
 
 Includes:
-    - feature
+    - Retrieves meals randomly, by name, by letter, by id, & lists the categories
+    - Parses the meal object obtained from themealdb api
+    - Communicates with Notion to create pages within a database.
 
 Example:
-    >>> example here
+    >>> api = MealAPI()
+    >>> random_meal = api.get_random_meal()
+
+    >>> load_dotenv()
+
+    >>> meal_parser = MealParser()
+
+    >>> parsed_random_meal = meal_parser.parse_meal(random_meal)
+
+    >>> recipe = NotionRecipe(db_id=os.getenv("NOTION_RECIPE_DATABASE_ID"), emoji="🥦", children=[],
+                        **parsed_random_meal)
+
+    >>> notion_client = Client(auth=os.getenv("NOTION_API_KEY"))
+
+    >>> notion_client.pages.create(page_id=os.getenv(
+        "NOTION_RECIPE_DATABASE_ID"), **recipe.to_dict())
 
 Notes:
-    
+    You will want to be sure that all values are correct when using them within the classes that are defined here.
 """
 
 
@@ -85,137 +101,72 @@ class MealParser:
         ingredients_w_measurements = dict()
 
         for ind, obj in enumerate(filtered_ingredients):
+            print(ind, obj)
             ingredients_w_measurements.update(
                 {obj[f'strIngredient{ind + 1}']: filtered_measurements[ind][f'strMeasure{ind + 1}']})
-
-        meal = {"name": meal['strMeal'], "category": meal['strCategory'], "instructions": meal['strInstructions'], "thumbnail_url": meal['strMealThumb'],
-                "tags": meal['strTags'].split(','), "youtube_url": meal['strYoutube'], 'ingredients': ingredients_w_measurements, 'source_url': meal["strSource"]}
+        print(meal)
+        meal = {"name": meal['strMeal'], "category": self.retrieve_category(meal['strCategory']), "instructions": meal['strInstructions'], "cover_url": meal['strMealThumb'],
+                "tags": self.retrieve_tags(meal['strTags']), "youtube_url": self.retrieve_url(meal['strYoutube']), 'ingredients': ingredients_w_measurements, 'source_url': self.retrieve_url(meal["strSource"])}
 
         return meal
 
+    def retrieve_category(self, category):
+        if category is None:
+            return "Undefined"
+        return category
+
+    def retrieve_url(self, url):
+        if url == "":
+            return None
+        return url
+
+    def retrieve_tags(self, meal_tags):
+        if meal_tags is None:
+            return list()
+        tags = meal_tags.split(',')
+
+        return tags
+
 
 class NotionRecipe(NotionDatabase):
-    def __init__(self, db_id, emoji, children, cover_url, category='Breakfast'):
+    def __init__(self, db_id, emoji, children, cover_url, category=None, source_url=None, tags=list(), youtube_url=None, name="Recipe Name", instructions=None, ingredients=dict()):
         super().__init__(db_id, emoji=emoji, children=children, cover_url=cover_url)
-        self.db_id = db_id
         self.properties = NotionProperties()
         # Category (Select Property)
         self.properties.add_property(
             NotionSelectProperty("Category", category))
         # Source URL (URL Property)
         self.properties.add_property(NotionUrlProperty(
-            "Source URL", "http://www.vodkaandbiscuits.com/2014/03/06/bangin-breakfast-potatoes/"))
+            "Source URL", source_url))
         # Tags (Multi Select Property)
         self.properties.add_property(NotionMultiSelectProperty(
-            "Tags", ["Breakfast", "Italian"]))
+            "Tags", tags))
         # Youtube URL (URL Property)
         self.properties.add_property(NotionUrlProperty(
-            "Youtube URL", "https://www.youtube.com/watch?v=BoD0TIO9nE4"))
+            "Youtube URL", youtube_url))
         # Name (Title Property)
         self.properties.add_property(NotionTitleProperty(
-            "Name", "Garlic Bread Sloppy Joes"))
+            name))
         self.properties = self.properties.to_dict()
-        # Instructions (Textual Block)
-        # Ingredients (Todo Block)
+        # Ingredients (Todo Blocks)
 
-
-load_dotenv()
-recipe = NotionRecipe(os.getenv("NOTION_RECIPE_DATABASE_ID"), "🍕", [],
-                      "https://www.themealdb.com/images/media/meals/1550441882.jpg")
-
-notion_client = Client(auth=os.getenv("NOTION_API_KEY"))
-
-# The databse id here is now visible throughout the program, it would be better to use the ospdule to grab it everytime
-notion_client.pages.create(page_id=recipe.db_id, **recipe.to_dict())
-
-
-meal_object = {
-    "meals": [
-        {
-            "idMeal": "52965",
-            "strMeal": "Breakfast Potatoes",
-            "strMealAlternate": None,
-            "strCategory": "Breakfast",
-            "strArea": "Canadian",
-            "strInstructions": "Before you do anything, freeze your bacon slices that way when you're ready to prep, it'll be so much easier to chop!\r\nWash the potatoes and cut medium dice into square pieces. To prevent any browning, place the already cut potatoes in a bowl filled with water.\r\nIn the meantime, heat 1-2 tablespoons of oil in a large skillet over medium-high heat. Tilt the skillet so the oil spreads evenly.\r\nOnce the oil is hot, drain the potatoes and add to the skillet. Season with salt, pepper, and Old Bay as needed.\r\nCook for 10 minutes, stirring the potatoes often, until brown. If needed, add a tablespoon more of oil.\r\nChop up the bacon and add to the potatoes. The bacon will start to render and the fat will begin to further cook the potatoes. Toss it up a bit! The bacon will take 5-6 minutes to crisp.\r\nOnce the bacon is cooked, reduce the heat to medium-low, add the minced garlic and toss. Season once more. Add dried or fresh parsley. Control heat as needed.\r\nLet the garlic cook until fragrant, about one minute.\r\nJust before serving, drizzle over the maple syrup and toss. Let that cook another minute, giving the potatoes a caramelized effect.\r\nServe in a warm bowl with a sunny side up egg!",
-            "strMealThumb": "https://www.themealdb.com/images/media/meals/1550441882.jpg",
-            "strTags": "Breakfast,Brunch",
-            "strYoutube": "https://www.youtube.com/watch?v=BoD0TIO9nE4",
-            "strIngredient1": "Potatoes",
-            "strIngredient2": "Olive Oil",
-            "strIngredient3": "Bacon",
-            "strIngredient4": "Garlic Clove",
-            "strIngredient5": "Maple Syrup",
-            "strIngredient6": "Parsley",
-            "strIngredient7": "Salt",
-            "strIngredient8": "Pepper",
-            "strIngredient9": "Allspice",
-            "strIngredient10": "",
-            "strIngredient11": "",
-            "strIngredient12": "",
-            "strIngredient13": "",
-            "strIngredient14": "",
-            "strIngredient15": "",
-            "strIngredient16": "",
-            "strIngredient17": "",
-            "strIngredient18": "",
-            "strIngredient19": "",
-            "strIngredient20": "",
-            "strMeasure1": "3 Medium",
-            "strMeasure2": "1 tbs",
-            "strMeasure3": "2 strips",
-            "strMeasure4": "Minced",
-            "strMeasure5": "1 tbs",
-            "strMeasure6": "Garnish",
-            "strMeasure7": "Pinch",
-            "strMeasure8": "Pinch",
-            "strMeasure9": "To taste",
-            "strMeasure10": " ",
-            "strMeasure11": " ",
-            "strMeasure12": " ",
-            "strMeasure13": " ",
-            "strMeasure14": " ",
-            "strMeasure15": " ",
-            "strMeasure16": " ",
-            "strMeasure17": " ",
-            "strMeasure18": " ",
-            "strMeasure19": " ",
-            "strMeasure20": " ",
-            "strSource": "http://www.vodkaandbiscuits.com/2014/03/06/bangin-breakfast-potatoes/",
-            "strImageSource": None,
-            "strCreativeCommonsConfirmed": None,
-            "dateModified": None
-        }
-    ]
-}
-
-# api = MealAPI()
-# random_meal = api.get_random_meal()
-
-# meal_parser = MealParser()
-
-# parsed_random_meal = meal_parser.parse_meal(random_meal)
-
-# print(parsed_random_meal)
-# Recipe Page Creator
-# client.blocks.children.append(block_id=page_id, children=[
-#                               heading,
-#                               divider,
-#                               todo,
-#                               todo,
-#                               todo,
-#                               todo,
-#                               todo,
-#                               todo,
-#                               todo,
-#                               heading2,
-#                               divider,
-#                               number_list_item,
-#                               number_list_item,
-#                               number_list_item,
-#                               heading3,
-#                               bulleted_list_item,
-#                               bulleted_list_item,
-#                               bulleted_list_item,
-#                               divider,
-#                               ])
+        self.children.append(NotionHeading(
+            "1", "Ingredients", "orange_background"))
+        self.children.append(NotionDivider())
+        for key, value in ingredients.items():
+            self.children.append(NotionTodo(f'{value} {key}'))
+        self.children.append(NotionParagraphBlock(""))
+        # Instructions (Textual Blocks)
+        self.children.append(NotionHeading(
+            "1", "Instructions", "green_background"))
+        self.children.append(NotionDivider())
+        for instruction_step in instructions.split("\r\n"):
+            self.children.append(NotionNumberedListItem(instruction_step))
+        self.children.append(NotionParagraphBlock(""))
+        self.children.append(NotionHeading(
+            "1", "Aspects to tweak next time", 'red_background'))
+        self.children.append(NotionDivider())
+        for _ in range(0, 3):
+            self.children.append(NotionBulletedListItem(""))
+        self.children.append(NotionParagraphBlock(""))
+        self.children.append(NotionDivider())
