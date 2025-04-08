@@ -1,8 +1,6 @@
-import os
-from notion_client import Client
-from notion_pages import NotionDatabase
-from notion_blocks import *
-from notion_props import *
+from notion_objs.notion_pages import NotionDatabase
+from notion_objs.notion_blocks import NotionHeading, NotionDivider, NotionBulletedListItem, NotionParagraphBlock
+from notion_objs.notion_props import NotionProperties, NotionTitleProperty, NotionRichTextProperty, NotionEmailProperty, NotionDateProperty, NotionSelectProperty, NotionNumberProperty, NotionUrlProperty, NotionStatusProperty
 
 
 class NotionCourse(NotionDatabase):

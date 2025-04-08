@@ -1,63 +1,31 @@
-import os
-from dotenv import load_dotenv
-from notion_client import Client
+# import time
+from recipe.recipe_communicator import MealAPI, MealParser
+# import json
 
-load_dotenv()
+meals = list()
+meal_api = MealAPI()
 
-client = Client(auth=os.getenv('NOTION_API_KEY'))
+random_meal = meal_api.get_random_meal()
 
-page = client.pages.retrieve(page_id="187c76d688a8802aa01fe869f6bbd656")
+print(MealParser().parse_meal(random_meal))
 
-print(page)
+# for _ in range(50):
+#     random_meal = meal_api.get_random_meal()
+#     time.sleep(2)
+#     meals.append(random_meal)
 
+# with open("meals", "w") as file:
+#     json.dump(meals, file, indent=4)
 
-# new_page.set_parent_page(os.getenv("NOTION_PAGE_ID"))
-# new_page.set_parent_database(os.getenv("NOTION_DATABASE_ID"))
-# new_page.set_cover("https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
-# new_page.set_icon("🐱")
-# new_page.set_properties(props)
+# import json
 
-# client.pages.create(parent={"type": "database_id", "database_id": os.getenv(
-#     'NOTION_DATABASE_ID')}, properties=props_obj)
-
-# ARCHIVED CODE
-# client.pages.create(parent={"type": "database_id", "database_id": os.getenv('NOTION_DATABASE_ID')}, properties={
-#     "Name": {
-#         "title": [
-#             {
-#                 "type": "text",
-#                 "text": {
-#                     "content": "Jacob Wilson"
-#                 }
-#             }
-#         ]
-#     },
-#     "Title": {
-#         "rich_text": [
-#             {
-#                 "type": "text",
-#                 "text": {
-#                     "content": "Full Stack Engineer"
-#                 }
-#             }
-#         ]
-#     },
-#     "Status": {
-#         "status": {
-#             "name": "Not started"
-#         }
-#     },
-#     "Multi-select": {
-#         "multi_select": [
-#             {
-#                 "name": "TypeScript"
-#             },
-#             {
-#                 "name": "Python"
-#             }
-#         ]
-#     },
-#     "Email": {
-#         "email": "jcbwlsn04@gmail.com"
-#     }
-# })
+# with open("meals.json", 'r') as file:
+#     data = json.load(file)
+#     first_item = data[0]
+#     for item in data[1:]:
+#         for key in item.keys():
+#             if key in first_item.keys():
+#                 continue
+#             else:
+#                 print("broken")
+#                 break

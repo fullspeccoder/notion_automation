@@ -173,11 +173,16 @@ class NotionBlock:
             ValueError: If the string does not match any valid NotionColor.
             TypeError: If the input is not a string or NotionColor.
         '''
-        if color_input in ['blue', 'brown', 'default', 'gray', 'green', 'orange', 'yellow', 'pink', 'purple', 'red', 'blue_background', 'brown_background', 'default', 'gray_background', 'green_background', 'orange_background', 'yellow_background', 'pink_background', 'purple_background', 'red_background',]:
+        color_types = ['blue', 'brown', 'default', 'gray', 'green', 'orange', 'yellow', 'pink',
+                       'purple', 'red', 'blue_background', 'brown_background', 'default',
+                       'gray_background', 'green_background', 'orange_background',
+                       'yellow_background', 'pink_background', 'purple_background',
+                       'red_background',]
+        if color_input in color_types:
             return color_input
         else:
             raise ValueError(
-                f"Invalid color: {color_input}. Must be one of {[c.value for c in NotionColor]}")
+                f"Invalid color: {color_input}. Must be one of {[c for c in color_types]}")
 
 
 class NotionBookmarkBlock(NotionBlock):
@@ -263,7 +268,7 @@ class NotionBulletedListItem(NotionBlock):
         >>> block.to_dict()
     """
 
-    def __init__(self, text, color='default', children=list()):
+    def __init__(self, text, color='default', children=[]):
         color = self.resolve_color(color)
         super().__init__('bulleted_list_item')
         self.content = {

@@ -72,6 +72,28 @@ class NotionObject:
         self.icon = {"emoji": emoji or ""}
         self.cover = {"external": {"url": cover_url}}
 
+    def retrieve_id(self):
+        """Retrieves the parent id
+
+        Retrieves the parent id of the Notion Object whether
+        the current Notion Object is a Database or Page.
+
+        Returns:
+            str: The parent id of the Notion Database or Page.
+
+        Examples:
+            >>> from notion_pages import NotionPage
+            >>> page = NotionPage("someid")
+            >>> page.retriev_id()
+            "someid"
+        """
+        if "database_id" in self.parent:
+            return self.parent['database_id']
+        elif "page_id" in self.parent:
+            return self.parent['page_id']
+        else:
+            return "no id found"
+
     def set_parent_page(self, p_id):
         """Sets the parent of the Notion object to a page.
 
