@@ -1,0 +1,138 @@
+{
+  "object": "page",
+  "id": "187c76d6-88a8-802a-a01f-e869f6bbd656",
+  "created_time": "2025-01-26T03:08:00.000Z",
+  "last_edited_time": "2025-01-26T03:17:00.000Z",
+  "created_by": {
+    "object": "user",
+    "id": "6b47712a-841b-49e2-ae23-5fbc2558cefc"
+  },
+  "last_edited_by": {
+    "object": "user",
+    "id": "6b47712a-841b-49e2-ae23-5fbc2558cefc"
+  },
+  "cover": {
+    "type": "external",
+    "external": {
+      "url": "https://images.unsplash.com/photo-1606761568499-6d2451b23c66?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb"
+    }
+  },
+  "icon": { "type": "emoji", "emoji": "\ud83c\udfa8" },
+  "parent": {
+    "type": "database_id",
+    "database_id": "187c76d6-88a8-803e-9560-c12efb6c07a6"
+  },
+  "archived": false,
+  "in_trash": false,
+  "properties": {
+    "Start Date": {
+      "id": "FF%7Dk",
+      "type": "date",
+      "date": { "start": "2025-01-06", "end": null, "time_zone": null }
+    },
+    "Course Code": { "id": "LoXP", "type": "rich_text", "rich_text": [] },
+    "Instructor Email": {
+      "id": "TmYR",
+      "type": "email",
+      "email": "k.desautels@snhu.edu"
+    },
+    "End Date": {
+      "id": "%5Bu%5Ew",
+      "type": "date",
+      "date": { "start": "2025-03-02", "end": null, "time_zone": null }
+    },
+    "Syllabus": {
+      "id": "a%3DBI",
+      "type": "url",
+      "url": "https://learn.snhu.edu/d2l/le/content/1801120/viewContent/37882092/View"
+    },
+    "Credits": { "id": "lQu%7C", "type": "number", "number": 3 },
+    "Total Assignments Left": {
+      "id": "pR%7Cx",
+      "type": "rollup",
+      "rollup": { "type": "number", "number": 1, "function": "count_per_group" }
+    },
+    "Instructor": {
+      "id": "w%7CBB",
+      "type": "rich_text",
+      "rich_text": [
+        {
+          "type": "text",
+          "text": { "content": "Kenneth Desautels", "link": null },
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "plain_text": "Kenneth Desautels",
+          "href": null
+        }
+      ]
+    },
+    "Difficulty": {
+      "id": "x%3A%5BI",
+      "type": "select",
+      "select": { "id": ";<Nf", "name": "Easy", "color": "green" }
+    },
+    "Status": {
+      "id": "xaSl",
+      "type": "status",
+      "status": {
+        "id": "fa6f7bf1-bd3b-457d-8892-802160b4627c",
+        "name": "Not started",
+        "color": "default"
+      }
+    },
+    "Total Grade": {
+      "id": "%7Da%60F",
+      "type": "rollup",
+      "rollup": { "type": "number", "number": 638.5, "function": "sum" }
+    },
+    "Assignments": {
+      "id": "~_Fa",
+      "type": "relation",
+      "relation": [
+        { "id": "187c76d6-88a8-80ee-9013-e565ed0f41e0" },
+        { "id": "187c76d6-88a8-8024-9756-fb02144b62e6" },
+        { "id": "187c76d6-88a8-80fd-93ed-c801b08eed64" },
+        { "id": "187c76d6-88a8-8032-adb4-c1ef65380471" },
+        { "id": "187c76d6-88a8-80ed-b46e-c7a124231e7c" },
+        { "id": "187c76d6-88a8-805f-83ba-d06cfddba25c" },
+        { "id": "187c76d6-88a8-8027-910c-deef60baa0b6" },
+        { "id": "187c76d6-88a8-80fd-a7e8-f0e17c00743c" },
+        { "id": "187c76d6-88a8-805d-9e8e-c8c7be614f4a" },
+        { "id": "187c76d6-88a8-8072-806f-db585eba09ee" },
+        { "id": "187c76d6-88a8-80a1-90fb-c1ceb0421ed8" },
+        { "id": "187c76d6-88a8-80f9-9c28-f5bfe427d89e" },
+        { "id": "187c76d6-88a8-8094-83d3-c59edff0e028" }
+      ],
+      "has_more": false
+    },
+    "Name": {
+      "id": "title",
+      "type": "title",
+      "title": [
+        {
+          "type": "text",
+          "text": { "content": "Design Thinking/Graphic Design", "link": null },
+          "annotations": {
+            "bold": false,
+            "italic": false,
+            "strikethrough": false,
+            "underline": false,
+            "code": false,
+            "color": "default"
+          },
+          "plain_text": "Design Thinking/Graphic Design",
+          "href": null
+        }
+      ]
+    }
+  },
+  "url": "https://www.notion.so/Design-Thinking-Graphic-Design-187c76d688a8802aa01fe869f6bbd656",
+  "public_url": null,
+  "request_id": "01b59a57-279c-4932-9ced-1964ded08305"
+}

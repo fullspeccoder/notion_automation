@@ -1,31 +1,10 @@
-# import time
-from recipe.recipe_communicator import MealAPI, MealParser
-# import json
+import json
+from notion_page_builder import NotionPageBuilder
 
-meals = list()
-meal_api = MealAPI()
+json_data = dict()
 
-random_meal = meal_api.get_random_meal()
+with open("schema.json", "r") as file:
+    data = file.read()
+    json_data = json.loads(data)
 
-print(MealParser().parse_meal(random_meal))
-
-# for _ in range(50):
-#     random_meal = meal_api.get_random_meal()
-#     time.sleep(2)
-#     meals.append(random_meal)
-
-# with open("meals", "w") as file:
-#     json.dump(meals, file, indent=4)
-
-# import json
-
-# with open("meals.json", 'r') as file:
-#     data = json.load(file)
-#     first_item = data[0]
-#     for item in data[1:]:
-#         for key in item.keys():
-#             if key in first_item.keys():
-#                 continue
-#             else:
-#                 print("broken")
-#                 break
+NotionPageBuilder(json_data)

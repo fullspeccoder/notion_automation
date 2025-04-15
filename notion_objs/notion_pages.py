@@ -64,13 +64,12 @@ class NotionObject:
             raise ValueError(
                 "Only one of 'db_id' or 'page_id' can be provided, not both.")
         # Required
-        self.parent = (db_id is not None and {"database_id": db_id}) or (
-            page_id is not None and {"page_id": page_id}) or dict()
+        self.parent = self._build_parent(db_id, page_id)
         # Required
         self.properties = properties or dict()
         self.children = children or list()
         self.icon = {"emoji": emoji or ""}
-        self.cover = {"external": {"url": cover_url}}
+        self.cover = {"external": {"url": cover_url}} or {}
 
     def retrieve_id(self):
         """Retrieves the parent id
@@ -213,6 +212,13 @@ class NotionObject:
 
         return {"parent": self.parent, "icon": self.icon, "cover": self.cover,
                 "properties": self.properties, "children": [child.to_dict() for child in self.children]}
+
+    def _build_parent(self, db_id, page_id):
+        if db_id:
+            return {"database_id": db_id}
+        if page_id:
+            return {"page_id": page_id}
+        return {}
 
     def __str__(self):
         '''Returns a string representation of the Notion Object.
